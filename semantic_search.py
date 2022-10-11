@@ -6,12 +6,13 @@ we want to find the most similar sentence in this corpus.
 
 This script outputs for various queries the top 5 most similar sentences in the corpus.
 """
-from getTitles import getTitles
 from sentence_transformers import SentenceTransformer, util
 import torch
 
+from issue import getTitles,getModifiedFiles
 
-sentences = getTitles(9999999)
+
+sentences = getTitles()
 
 embedder = SentenceTransformer('all-MiniLM-L6-v2')
 
@@ -37,6 +38,11 @@ print("\nTop 5 most similar sentences in corpus:")
 for score, idx in zip(top_results[0], top_results[1]):
     if sentences[idx] != query:
         print(sentences[idx], "(Score: {:.4f})".format(score))
+        files = getModifiedFiles(sentences[idx])
+        print("arquivos modificados:")
+        for f in files:
+            print(f)
+        print("\n")
 
     """
     # Alternatively, we can also use util.semantic_search to perform cosine similarty + topk

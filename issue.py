@@ -1,7 +1,7 @@
 import json
 import requests
 
-def getTitles(qnt=99999999999):
+def getTitles(qnt = -1):
     f = open('jabref/issues.json')
     data = json.load(f)
 
@@ -19,6 +19,43 @@ def getTitles(qnt=99999999999):
 # for t in titles:
 #     print(t)
 
+def getMergedTitles(qnt = -1):
+    f = open('jabref/issues.json')
+    data = json.load(f)
+
+    titles = []
+
+    i=0
+    for issue in data:
+        if "pull_request" in issue['issue_data']:
+            if issue['issue_data']['pull_request']['merged_at'] != None:
+                titles.append(issue['issue_data']['title'])
+                i+=1
+        if i == qnt:
+            break
+    return titles 
+# titles = getMergedTitles(5)
+# for t in titles:
+#     print(t)
+
+def getMergedIssues(qnt = -1):
+    f = open('jabref/issues.json')
+    data = json.load(f)
+
+    issues = []
+
+    i=0
+    for issue in data:
+        if "pull_request" in issue['issue_data']:
+            if issue['issue_data']['pull_request']['merged_at'] != None:
+                issues.append(issue)
+                i+=1
+        if i == qnt:
+            break
+    return issues
+# issues = getMergedIssues(5)
+# for issue in issues:
+#     print(issue)
 
 def getIssueById(id):
     f = open('jabref/issues.json')
@@ -54,7 +91,7 @@ def getIssueByTitle(title):
     print(f"issue com titulo {title} nao encontrada");
     return None
 
-def getModifiedFiles(title):
+def getModifiedFilesByTitle(title):
     issue = getIssueByTitle(title)
     if(issue == None):
         return

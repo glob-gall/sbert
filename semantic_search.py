@@ -9,21 +9,24 @@ This script outputs for various queries the top 5 most similar sentences in the 
 from sentence_transformers import SentenceTransformer, util
 import torch
 
-from issue import getTitles,getModifiedFiles
+from issue import getMergedTitles,getModifiedFilesByTitle
 
 
-sentences = getTitles()
+query = 'New Sorting/Export preferences'
+sentences = getMergedTitles()
+
+if query in sentences:
+    sentences.remove(query)
 
 embedder = SentenceTransformer('all-MiniLM-L6-v2')
 
 corpus_embeddings = embedder.encode(sentences, convert_to_tensor=True)
 
 # Query sentences:
-query = 'New Sorting/Export preferences'
 
 
 # Find the closest 5 sentences of the corpus for each query sentence based on cosine similarity
-top_k = min(6, len(sentences))
+top_k = min(5, len(sentences))
 # for query in queries:
 query_embedding = embedder.encode(query, convert_to_tensor=True)
 
@@ -31,18 +34,19 @@ query_embedding = embedder.encode(query, convert_to_tensor=True)
 cos_scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
 top_results = torch.topk(cos_scores, k=top_k)
 
-print("\n\n======================\n\n")
-print("Query:", query)
-print("\nTop 5 most similar sentences in corpus:")
+print("\n======================================================================================================================================")
+print(f"=============================================== [Query:{query}] ===============================================")
+print("======================================================================================================================================")
+print("\nTop 5 most similar sentences in corpus:\n")
 
 for score, idx in zip(top_results[0], top_results[1]):
-    if sentences[idx] != query:
-        print(sentences[idx], "(Score: {:.4f})".format(score))
-        files = getModifiedFiles(sentences[idx])
-        print("arquivos modificados:")
-        for f in files:
-            print(f)
-        print("\n")
+    print(f'=======================================================[ issue - {idx} ]=======================================================\n')
+    print(sentences[idx], "(Score: {:.4f})".format(score))
+    files = getModifiedFilesByTitle(sentences[idx])
+    print("arquivos modificados:")
+    for f in files:
+        print(f)
+    print("\n\n\n")
 
     """
     # Alternatively, we can also use util.semantic_search to perform cosine similarty + topk
